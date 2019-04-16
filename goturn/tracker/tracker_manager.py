@@ -35,7 +35,7 @@ class tracker_manager:
         objRegressor = self.regressor
         objTracker = self.tracker
 
-        video_keys = videos.keys()
+        video_keys = list(videos.keys())
         for i in range(start_video_num, len(videos)):
             video_frames = videos[video_keys[i]][0]
             annot_frames = videos[video_keys[i]][1]
@@ -47,6 +47,12 @@ class tracker_manager:
             bbox_0 = annot_frames[0]
             sMatImage = cv2.imread(frame_0)
             objTracker.init(sMatImage, bbox_0, objRegressor)
+            try:
+                # Python 2
+                xrange
+            except NameError:
+                # Python 3, xrange is now named range
+                xrange = range
             for i in xrange(1, num_frames):
                 frame = video_frames[i]
                 sMatImage = cv2.imread(frame)

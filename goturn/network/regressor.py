@@ -109,8 +109,9 @@ class regressor:
         """
 
         logger = self.logger
-        caffe.set_mode_gpu()
-        caffe.set_device(int(gpu_id))
+        if not gpu_id < 0:
+            caffe.set_mode_gpu()
+            caffe.set_device(int(gpu_id))
         if do_train == True:
             logger.info('Setting phase to train')
             # TODO: this part of the code needs to be changed for

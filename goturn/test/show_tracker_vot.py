@@ -18,11 +18,12 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--prototxt", required=True, help="Path to the prototxt")
 ap.add_argument("-m", "--model", required=True, help="Path to the model")
 ap.add_argument("-v", "--input", required=True, help="Path to the vot directory")
-ap.add_argument("-g", "--gpuID", required=True, help="gpu to use")
+ap.add_argument("-g", "--gpuID", required=False, default=-1, help="gpu to use, omit to use cpu only")
 args = vars(ap.parse_args())
+gpuId = args['gpuID'] if int(args['gpuID']) >= 0 else -1
 
 do_train = False
-objRegressor = regressor(args['prototxt'], args['model'], args['gpuID'], 1, do_train, logger)
+objRegressor = regressor(args['prototxt'], args['model'], gpuId, 1, do_train, logger)
 objTracker = tracker(False, logger)  # Currently no idea why this class is needed, eventually we shall figure it out
 objLoaderVot = loader_vot(args['input'], logger)
 videos = objLoaderVot.get_videos()

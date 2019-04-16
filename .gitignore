@@ -1,1 +1,5 @@
 *.pyc
+*.whl
+.env/
+.vscode/
+*.caffemodel
