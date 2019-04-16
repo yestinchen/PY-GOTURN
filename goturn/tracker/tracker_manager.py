@@ -4,6 +4,7 @@
 # Description: tracker manager
 
 import cv2
+import time
 
 opencv_version = cv2.__version__.split('.')[0]
 
@@ -36,6 +37,8 @@ class tracker_manager:
         objTracker = self.tracker
 
         video_keys = list(videos.keys())
+        count =0
+        start=time.time()
         for i in range(start_video_num, len(videos)):
             video_frames = videos[video_keys[i]][0]
             annot_frames = videos[video_keys[i]][1]
@@ -47,13 +50,7 @@ class tracker_manager:
             bbox_0 = annot_frames[0]
             sMatImage = cv2.imread(frame_0)
             objTracker.init(sMatImage, bbox_0, objRegressor)
-            try:
-                # Python 2
-                xrange
-            except NameError:
-                # Python 3, xrange is now named range
-                xrange = range
-            for i in xrange(1, num_frames):
+            for i in range(1, num_frames):
                 frame = video_frames[i]
                 sMatImage = cv2.imread(frame)
                 sMatImageDraw = sMatImage.copy()
@@ -69,6 +66,12 @@ class tracker_manager:
                     cv2.rectangle(sMatImageDraw, (int(bbox.x1), int(bbox.y1)), (int(bbox.x2), int(bbox.y2)), (255, 0, 0), 2)
                 else:
                     sMatImageDraw = cv2.rectangle(sMatImageDraw, (int(bbox.x1), int(bbox.y1)), (int(bbox.x2), int(bbox.y2)), (255, 0, 0), 2)
+
+                count+=1
+                timeUsed = time.time()-start
+
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                cv2.putText(sMatImageDraw,'{:0.2f}fps[#{}]'.format(count/timeUsed, i),(0,50), font, 0.5,(255,255,255),1,cv2.LINE_AA)
 
                 cv2.imshow('Results', sMatImageDraw)
                 cv2.waitKey(10)
