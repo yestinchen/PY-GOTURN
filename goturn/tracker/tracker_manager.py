@@ -5,6 +5,7 @@
 
 import cv2
 import time
+from ..helper.BoundingBox import BoundingBox
 
 opencv_version = cv2.__version__.split('.')[0]
 
@@ -75,3 +76,45 @@ class tracker_manager:
 
                 cv2.imshow('Results', sMatImageDraw)
                 cv2.waitKey(10)
+
+    def trackDemo(self):
+        video = self.videos # a list of images.
+        objRegressor = self.regressor
+        objTracker = self.tracker
+
+        cv2.namedWindow("Demo", cv2.WND_PROP_FULLSCREEN)
+        ims = [cv2.imread(imf) for imf in video]
+        initBox = None
+        try:
+            init_rect = cv2.selectROI('Demo', ims[0], False, False)
+            x, y, w, h = init_rect
+            initBox = BoundingBox(x, y, w+x, h+y)
+        except:
+            exit()
+        
+        count =0
+        start=time.time()
+        for f, im in enumerate(ims):
+            tic = cv2.getTickCount()
+            if f == 0:  # init
+                # init
+                objTracker.init(im, initBox, objRegressor)
+            elif f > 0:  # tracking
+                sMatImageDraw = im.copy()
+                bbox = objTracker.track(im, objRegressor)
+                if opencv_version == '2':
+                    cv2.rectangle(sMatImageDraw, (int(bbox.x1), int(bbox.y1)), (int(bbox.x2), int(bbox.y2)), (255, 0, 0), 2)
+                else:
+                    sMatImageDraw = cv2.rectangle(sMatImageDraw, (int(bbox.x1), int(bbox.y1)), (int(bbox.x2), int(bbox.y2)), (255, 0, 0), 2)
+
+                count+=1
+                timeUsed = time.time()-start
+
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                cv2.putText(sMatImageDraw,'{:0.2f}fps[#{}]'.format(count/timeUsed, f),(0,50), font, 0.5,(255,255,255),1,cv2.LINE_AA)
+
+                cv2.imshow('Demo', sMatImageDraw)
+                key = cv2.waitKey(10)
+                if key > 0:
+                    break
+
